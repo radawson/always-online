@@ -8,16 +8,16 @@ USER_AGENT="always-online-runtime-test/1.0 (https://github.com/AshleyThew/always
 
 echo "=== Building plugin ==="
 ./gradlew build -q
-PLUGIN_JAR="$(find output -name 'always-online-*.jar' 2>/dev/null | head -1)"
-if [ -z "$PLUGIN_JAR" ]; then
-  PLUGIN_JAR="output/always-online-latest.jar"
-fi
-[ -f "$PLUGIN_JAR" ] || { echo "Plugin JAR not found"; exit 1; }
+# Use the Paper plugin (always-online-latest.jar), not the Sponge variant
+PLUGIN_JAR="output/always-online-latest.jar"
+[ -f "$PLUGIN_JAR" ] || { echo "Plugin JAR not found at $PLUGIN_JAR"; exit 1; }
 
 echo "=== Downloading Paper server ==="
 TEST_DIR="build/runtime-test"
+rm -rf "$TEST_DIR"
+mkdir -p "$TEST_DIR"
 mkdir -p "$TEST_DIR/plugins"
-cp "$PLUGIN_JAR" "$TEST_DIR/plugins/"
+cp "$PLUGIN_JAR" "$TEST_DIR/plugins/always-online.jar"
 cd "$TEST_DIR"
 
 # Use Paper API v2 (api.papermc.io) - matches plugin target 1.21.x
@@ -40,6 +40,8 @@ echo "Downloaded Paper ${LATEST_VERSION}-${BUILD_NUM}"
 
 echo "=== Preparing server ==="
 echo "eula=true" > eula.txt
+# Use alternate port to avoid "Address already in use" when another server/run exists
+echo "server-port=25566" > server.properties
 
 echo "=== Starting server (max 120s) ==="
 timeout 120 java -Xms256M -Xmx512M -jar server.jar nogui 2>&1 | tee server.log || true
