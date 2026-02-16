@@ -1,0 +1,28 @@
+name: Runtime Test
+
+on:
+  push:
+    branches: [paper, main, master]
+  pull_request:
+    branches: [paper, main, master]
+
+jobs:
+  runtime-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Run runtime test
+        run: |
+          chmod +x scripts/runtime-test.sh
+          ./scripts/runtime-test.sh

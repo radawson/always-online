@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.Proxy;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +58,8 @@ public class NMSAuthSessionService extends YggdrasilMinecraftSessionService {
 
 	public ProfileResult fetchProfile(GameProfile profile, boolean requireSecure) {
 		if (alwaysOnline.getOfflineMode()) {
-			return Objects.requireNonNull(uuidNameCache.getIfPresent(profile.id())).orElse(null);
+			Optional<ProfileResult> cached = uuidNameCache.getIfPresent(profile.id());
+			return cached != null ? cached.orElse(null) : null;
 		}
 		try {
 			return (ProfileResult) fetchProfile1.invoke(oldSessionService, profile, requireSecure);
@@ -71,7 +71,8 @@ public class NMSAuthSessionService extends YggdrasilMinecraftSessionService {
 
 	public ProfileResult fetchProfile(UUID profileId, boolean requireSecure) {
 		if (alwaysOnline.getOfflineMode()) {
-			return Objects.requireNonNull(uuidNameCache.getIfPresent(profileId)).orElse(null);
+			Optional<ProfileResult> cached = uuidNameCache.getIfPresent(profileId);
+			return cached != null ? cached.orElse(null) : null;
 		}
 		try {
 			return (ProfileResult) fetchProfile2.invoke(oldSessionService, profileId, requireSecure);

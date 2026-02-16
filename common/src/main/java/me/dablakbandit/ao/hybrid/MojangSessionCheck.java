@@ -9,7 +9,9 @@ public class MojangSessionCheck implements Runnable {
 
 	private final AlwaysOnline alwaysOnline;
 	private final boolean useHeadSessionServer;
+	private final boolean useMicrosoftApiCheck;
 	private final int totalCheckMethods;
+	private final boolean offlineWhenAnyCheckFails;
 	private final String messageMojangOffline, messageMojangOnline;
 	private final Gson gson;
 	private final long lockoutDurationMillis;
@@ -24,12 +26,18 @@ public class MojangSessionCheck implements Runnable {
 			headCheck = true;
 		}
 		this.useHeadSessionServer = headCheck;
+		this.useMicrosoftApiCheck = Boolean.parseBoolean(this.alwaysOnline.config.getProperty("microsoft-api-check", "true"));
+		this.offlineWhenAnyCheckFails = Boolean.parseBoolean(this.alwaysOnline.config.getProperty("offline-when-any-check-fails", "true"));
 		this.alwaysOnline.nativeExecutor.log(Level.INFO, "Head Session server check: " + this.useHeadSessionServer);
+		this.alwaysOnline.nativeExecutor.log(Level.INFO, "Microsoft API check: " + this.useMicrosoftApiCheck);
 		if (this.useHeadSessionServer) {
 			methodCount++;
 			this.gson = new Gson();
 		} else {
 			this.gson = null;
+		}
+		if (this.useMicrosoftApiCheck) {
+			methodCount++;
 		}
 
 		this.alwaysOnline.nativeExecutor.log(Level.INFO, "Total check methods active: " + methodCount);
@@ -47,8 +55,13 @@ public class MojangSessionCheck implements Runnable {
 		int downServiceReport = 0;
 		if (this.useHeadSessionServer && !CheckMethods.directSessionServerStatus(alwaysOnline, this.gson))
 			downServiceReport++;
+		if (this.useMicrosoftApiCheck && !CheckMethods.microsoftApiReachable())
+			downServiceReport++;
+		boolean consideredOffline = offlineWhenAnyCheckFails
+				? (downServiceReport > 0)
+				: (downServiceReport >= this.totalCheckMethods);
 		long currentTime = System.currentTimeMillis();
-		if (downServiceReport >= this.totalCheckMethods) {// Offline
+		if (consideredOffline) {// Offline
 			// Reset lockout timer when down is detected (whether first time or again during lockout)
 			this.lockoutEndTime = currentTime + this.lockoutDurationMillis;
 			if (!alwaysOnline.getOfflineMode()) {

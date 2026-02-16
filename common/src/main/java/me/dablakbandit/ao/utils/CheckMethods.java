@@ -1,5 +1,6 @@
 package me.dablakbandit.ao.utils;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.dablakbandit.ao.hybrid.IAlwaysOnline;
@@ -32,6 +33,47 @@ public class CheckMethods {
 			return false;
 		}
 		return "069a79f444e94726a5befca90e38aaf5".equals(data.get("id"));
+	}
+
+	/**
+	 * Checks if the Microsoft Minecraft Services API (api.minecraftservices.com) is reachable.
+	 * Used for Microsoft-account authentication. A 401 response counts as "up" since it means
+	 * the server responded; only connection failures indicate the service is down.
+	 */
+	public static boolean microsoftApiReachable() {
+		HttpURLConnection con = null;
+		try {
+			con = openConnection("https://api.minecraftservices.com/minecraft/profile");
+			int responseCode = con.getResponseCode();
+			// Consume response body to allow proper connection cleanup
+			try (InputStream in = con.getInputStream()) {
+				ByteStreams.exhaust(in);
+			} catch (IOException e) {
+				try (InputStream err = con.getErrorStream()) {
+					if (err != null) ByteStreams.exhaust(err);
+				} catch (IOException ignored) {
+				}
+			}
+			// Any HTTP response (including 401 Unauthorized) means the service is reachable
+			return responseCode > 0;
+		} catch (IOException | URISyntaxException e) {
+			return false;
+		} finally {
+			if (con != null) con.disconnect();
+		}
+	}
+
+	private static HttpURLConnection openConnection(String url) throws IOException, URISyntaxException {
+		URL obj = new URL(url);
+		URI uri = obj.toURI();
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setDefaultUseCaches(false);
+		con.setRequestMethod("GET");
+		con.setRequestProperty("Accept", "application/json");
+		con.setRequestProperty("User-Agent", "AlwaysOnline");
+		con.setConnectTimeout(5000);
+		con.setReadTimeout(5000);
+		return con;
 	}
 
 	private static String sendGet(String url) throws IOException, URISyntaxException {
