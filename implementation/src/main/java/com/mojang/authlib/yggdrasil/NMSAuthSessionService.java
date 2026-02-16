@@ -7,7 +7,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
 import me.dablakbandit.ao.databases.Database;
 import me.dablakbandit.ao.hybrid.IAlwaysOnline;
-import me.dablakbandit.ao.utils.NMSUtils;
+import me.dablakbandit.ao.utils.ReflectionUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,8 +35,8 @@ public class NMSAuthSessionService extends YggdrasilMinecraftSessionService {
 		this.alwaysOnline = alwaysOnline;
 		this.oldSessionService = oldSessionService;
 		this.database = database;
-		this.fetchProfile1 = NMSUtils.getMethod(oldSessionService.getClass(), "fetchProfile", GameProfile.class, boolean.class);
-		this.fetchProfile2 = NMSUtils.getMethod(oldSessionService.getClass(), "fetchProfile", UUID.class, boolean.class);
+		this.fetchProfile1 = ReflectionUtil.getMethod(oldSessionService.getClass(), "fetchProfile", GameProfile.class, boolean.class);
+		this.fetchProfile2 = ReflectionUtil.getMethod(oldSessionService.getClass(), "fetchProfile", UUID.class, boolean.class);
 		this.uuidNameCache = CacheBuilder.newBuilder().expireAfterWrite(6L, TimeUnit.HOURS).build();
 	}
 
@@ -59,7 +59,7 @@ public class NMSAuthSessionService extends YggdrasilMinecraftSessionService {
 
 	public ProfileResult fetchProfile(GameProfile profile, boolean requireSecure) {
 		if (alwaysOnline.getOfflineMode()) {
-			return Objects.requireNonNull(uuidNameCache.getIfPresent(profile.getId())).orElse(null);
+			return Objects.requireNonNull(uuidNameCache.getIfPresent(profile.id())).orElse(null);
 		}
 		try {
 			return (ProfileResult) fetchProfile1.invoke(oldSessionService, profile, requireSecure);

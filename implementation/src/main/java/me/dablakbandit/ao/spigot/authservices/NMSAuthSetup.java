@@ -2,16 +2,11 @@ package me.dablakbandit.ao.spigot.authservices;
 
 import com.mojang.authlib.yggdrasil.Check_1_20_2;
 import me.dablakbandit.ao.spigot.SpigotLoader;
-import me.dablakbandit.ao.utils.NMSUtils;
+import net.minecraft.server.MinecraftServer;
 
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 
 public class NMSAuthSetup {
-
-	private static Class<?> classMinecraftServer = NMSUtils.getNMSClass("MinecraftServer");
-	private static Method setUsesAuthentication = NMSUtils.getMethodSilent(classMinecraftServer, new String[]{"setOnlineMode", "setUsesAuthentication", "d"}, boolean.class);
-	private static Method getServer = NMSUtils.getMethod(classMinecraftServer, "getServer");
 
 	public static void setUp(SpigotLoader spigotLoader) throws Exception {
 		spigotLoader.log(Level.INFO, "Attempting setup 1.20+ Auth service");
@@ -19,15 +14,10 @@ public class NMSAuthSetup {
 	}
 
 	public static void setOnlineMode(boolean onlineMode) {
-		if (setUsesAuthentication != null) {
-			try {
-				Object ms = getServer.invoke(null);
-				setUsesAuthentication.invoke(ms, onlineMode);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		try {
+			MinecraftServer.getServer().setUsesAuthentication(onlineMode);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
-
-
 }

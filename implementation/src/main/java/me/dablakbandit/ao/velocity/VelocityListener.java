@@ -7,20 +7,28 @@ import com.velocitypowered.api.event.player.GameProfileRequestEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import com.velocitypowered.api.util.GameProfile;
-import me.dablakbandit.ao.proxy.ProxyListener;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
-public class VelocityListener extends ProxyListener {
+public class VelocityListener {
+
+	private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]{3,16}$");
 
 	private final VelocityLoader velocityLoader;
+	protected String MOTD;
 
 	public VelocityListener(VelocityLoader velocityLoader) {
-		super(velocityLoader);
 		this.velocityLoader = velocityLoader;
+		String motd = velocityLoader.alwaysOnline.config.getProperty("message-motd-offline", "&eMojang servers are down,\\n&ebut you can still connect!");
+		this.MOTD = "null".equals(motd) ? null : motd;
+	}
+
+	private boolean validateUsername(String username) {
+		return username != null && USERNAME_PATTERN.matcher(username).matches();
 	}
 
 	// A high priority to allow other plugins to go first
@@ -28,7 +36,7 @@ public class VelocityListener extends ProxyListener {
 	public void onPreLogin(PreLoginEvent event) {
 		if (velocityLoader.getAOInstance().getOfflineMode()) {// Make sure we are in mojang offline mode
 			// Verify if the name attempting to connect is even verified
-			if (!this.validate(event.getUsername())) {
+			if (!this.validateUsername(event.getUsername())) {
 				event.setResult(PreLoginEvent.PreLoginComponentResult.denied(LegacyComponentSerializer.legacy('&').deserialize(this.velocityLoader.alwaysOnline.config.getProperty("message-kick-invalid", "Invalid username. Hacking?"))));
 				return;
 
