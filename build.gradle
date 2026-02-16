@@ -4,7 +4,12 @@ plugins {
 }
 
 ext {
-    plVersion = '6.3.3'
+    plVersion = '7.0.0'
+}
+
+// Single platform: Paper (and Velocity in same jar). Root build = build the plugin.
+tasks.named('build') {
+    dependsOn ':implementation:build'
 }
 
 allprojects {

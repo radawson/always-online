@@ -5,15 +5,19 @@ plugins {
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 dependencies {
     implementation project(':common')
-    implementation project(':1_14_plus')
-    implementation project(':1_16_4_plus')
     implementation project(':1_20_2_plus')
 
-    compileOnly 'org.spigotmc:spigot:1.14-R0.1-SNAPSHOT'
-    compileOnly 'net.md-5:bungeecord-api:1.20-R0.3-SNAPSHOT'
-    compileOnly 'net.md-5:bungeecord-proxy:1.20-R0.3-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
     compileOnly 'com.velocitypowered:velocity-api:3.0.1'
 }
 

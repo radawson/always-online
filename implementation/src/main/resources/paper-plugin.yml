@@ -1,0 +1,18 @@
+name: AlwaysOnline
+version: '@version@'
+main: me.dablakbandit.ao.spigot.SpigotLoader
+description: Keeps your Minecraft server online during Mojang authentication outages
+authors: [ Dablakbandit, Johnnywoof ]
+website: https://www.spigotmc.org/resources/alwaysonline.66591/
+api-version: '1.20'
+load: POSTWORLD
+commands:
+  alwaysonline:
+    description: Base command for always online
+    permission: alwaysonline.usage
+    usage: /alwaysonline
+    aliases: [ ao ]
+permissions:
+  alwaysonline.usage:
+    description: Allows use of the AlwaysOnline command
+    default: op

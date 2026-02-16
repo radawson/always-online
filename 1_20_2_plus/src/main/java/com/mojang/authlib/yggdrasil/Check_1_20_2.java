@@ -2,8 +2,6 @@ package com.mojang.authlib.yggdrasil;
 
 import me.dablakbandit.ao.hybrid.IAlwaysOnline;
 import me.dablakbandit.ao.utils.NMSUtils;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.Services;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -41,8 +39,8 @@ public class Check_1_20_2 {
 	}
 
 	public static void setup(IAlwaysOnline alwaysOnline) throws Exception {
-		MinecraftServer minecraftServer = (MinecraftServer) getServer.invoke(null);
-		Services services = (Services) fieldServices.get(minecraftServer);
+		Object minecraftServer = getServer.invoke(null);
+		Object services = fieldServices.get(minecraftServer);
 		YggdrasilMinecraftSessionService oldSessionService = (YggdrasilMinecraftSessionService) fieldServicesSessionService.get(services);
 		ServicesKeySet servicesKeySet = (ServicesKeySet) fieldServicesKeySet.get(oldSessionService);
 		Object minecraftClient = fieldMinecraftClient.get(oldSessionService);
@@ -60,5 +58,6 @@ public class Check_1_20_2 {
 		Object newServices = conServices.newInstance(objects);
 		fieldServices.set(minecraftServer, newServices);
 	}
+
 
 }

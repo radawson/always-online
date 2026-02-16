@@ -57,7 +57,7 @@ jobs:
             ## Always Online v${{ steps.get_version.outputs.version }}
 
             ### Files:
-            - `always-online-${{ steps.get_version.outputs.version }}.jar` - Main plugin for Bukkit/Spigot/Paper servers
+            - `always-online-${{ steps.get_version.outputs.version }}.jar` - Plugin for Paper servers and Velocity proxy
             - `always-online-sponge-${{ steps.get_version.outputs.version }}.jar` - Plugin for SpongeAPI servers
 
             ### Installation:

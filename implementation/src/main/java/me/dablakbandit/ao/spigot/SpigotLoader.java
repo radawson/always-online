@@ -29,8 +29,8 @@ public class SpigotLoader extends JavaPlugin implements NativeExecutor {
 
 		if (!this.getServer().getOnlineMode()) {
 			this.getLogger().info("This server is running in offline mode, so this plugin will have no use on this server!");
-			this.getLogger().info("If you are running bungeecord, please put AlwaysOnline in the bungeecord plugins directory.");
-			this.getLogger().info("If you are not running bungeecord, then please remove AlwaysOnline.");
+			this.getLogger().info("If you are running Velocity, please put AlwaysOnline in the Velocity proxy plugins directory.");
+			this.getLogger().info("If you are not running a proxy, then please remove AlwaysOnline.");
 			this.getPluginLoader().disablePlugin(this);
 			return;
 		}
